@@ -36,12 +36,12 @@
   <arg name="kinematics_params" default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
   <arg name="physical_params" default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
   <arg name="visual_params" default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+  <arg name="gripper" default="false"/>
+  <arg name="gripper_type" default="robotiq_85_gripper"/>
 
   <!-- Controller configuration -->
   <arg name="controller_config_file" default="$(find ur_gazebo)/config/ur5e_controllers.yaml" doc="Config file used for defining the ROS-Control controllers."/>
-  <arg name="controllers" default="joint_state_controller pos_joint_traj_controller" doc="Controllers that are activated by default."/>
   <arg name="stopped_controllers" default="joint_group_pos_controller" doc="Controllers that are initally loaded, but not started."/>
-
   <!-- robot_state_publisher configuration -->
   <arg name="tf_prefix" default="" doc="tf_prefix used for the robot."/>
   <arg name="tf_pub_rate" default="500" doc="Rate at which robot_state_publisher should publish transforms."/>
@@ -50,12 +50,40 @@
   <arg name="paused" default="false" doc="Starts Gazebo in paused mode" />
   <arg name="gui" default="true" doc="Starts Gazebo gui" />
 
+  <group if="$(arg gripper)">
+    <rosparam file="$(find robotiq_control)/config/$(arg gripper_type)_controller.yaml" command="load" />
+    <arg name="controllers" default="joint_state_controller pos_joint_traj_controller gripper_controller" doc="Controllers that are activated by default."/>
+
+    <!-- Start the 'driver' (ie: Gazebo in this case) -->
+    <include file="$(dirname)/inc/ur_control.launch.xml">
+      <arg name="controller_config_file" value="$(arg controller_config_file)"/>
+      <arg name="controllers" value="$(arg controllers)"/>
+      <arg name="gui" value="$(arg gui)"/>
+      <arg name="paused" value="$(arg paused)"/>
+      <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
+    </include>
+  </group>
+  <group unless="$(arg gripper)">
+    <arg name="controllers" default="joint_state_controller pos_joint_traj_controller" doc="Controllers that are activated by default."/>
+
+    <!-- Start the 'driver' (ie: Gazebo in this case) -->
+    <include file="$(dirname)/inc/ur_control.launch.xml">
+      <arg name="controller_config_file" value="$(arg controller_config_file)"/>
+      <arg name="controllers" value="$(arg controllers)"/>
+      <arg name="gui" value="$(arg gui)"/>
+      <arg name="paused" value="$(arg paused)"/>
+      <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
+    </include>
+  </group>
+
   <!-- Load urdf on the parameter server -->
   <include file="$(arg robot_description_file)">
     <arg name="joint_limit_params" value="$(arg joint_limit_params)"/>
     <arg name="kinematics_params" value="$(arg kinematics_params)"/>
     <arg name="physical_params" value="$(arg physical_params)"/>
     <arg name="visual_params" value="$(arg visual_params)"/>
+    <arg name="gripper" value="$(arg gripper)"/>
+    <arg name="gripper_type" value="$(arg gripper_type)"/>
   </include>
 
   <!-- Robot state publisher -->
@@ -64,12 +92,4 @@
     <param name="tf_prefix" value="$(arg tf_prefix)" />
   </node>
 
-  <!-- Start the 'driver' (ie: Gazebo in this case) -->
-  <include file="$(dirname)/inc/ur_control.launch.xml">
-    <arg name="controller_config_file" value="$(arg controller_config_file)"/>
-    <arg name="controllers" value="$(arg controllers)"/>
-    <arg name="gui" value="$(arg gui)"/>
-    <arg name="paused" value="$(arg paused)"/>
-    <arg name="stopped_controllers" value="$(arg stopped_controllers)"/>
-  </include>
 </launch>
