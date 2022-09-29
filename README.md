@@ -60,14 +60,19 @@ source $HOME/catkin_ws/devel/setup.bash
 __Usage__
 
 ___With real Hardware___
-There are launch files available to bringup a real robot - either UR5 or UR10.  
-In the following the commands for the UR5 are given. For the UR10, simply replace the prefix accordingly.
+We are using the new ROS UR driver, please clone this repo and rebuild your workspace:
+```
+git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git
+```
+
+There are launch files available to bringup a real robot - either UR3, UR5 or UR10.  
+In the following the commands for the UR5 are given. For the UR3 or UR10, simply replace the prefix accordingly.
 
 Don't forget to source the correct setup shell files and use a new terminal for each command!   
 
 To bring up the real robot, run:
 
-```roslaunch ur_bringup ur5_bringup.launch robot_ip:=IP_OF_THE_ROBOT [reverse_port:=REVERSE_PORT]```
+```roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=IP_OF_THE_ROBOT [reverse_port:=REVERSE_PORT]```
 
 
 CAUTION:  
