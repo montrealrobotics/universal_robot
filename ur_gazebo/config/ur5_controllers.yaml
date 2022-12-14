@@ -40,3 +40,7 @@ vel_joint_traj_controller:
    state_publish_rate: *loop_hz
    action_monitor_rate: 20
 
+joint_group_vel_controller:
+   type: velocity_controllers/JointGroupVelocityController
+   joints: *robot_joints
+
